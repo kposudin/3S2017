@@ -8,6 +8,7 @@
 #include <vector>
 #include <iostream>
 #include <thread>
+#include <atomic>
 
 using namespace std;
 const int n=7;
@@ -83,7 +84,9 @@ int main() {
     cout << "DFS RESULT:"<<endl;
     
     for (int i=0; i<v_k.size();i++){
-        threads.push_back(thread(DFS, &GM[0][0], n,v_k[i]));
+        if (!used[i]){
+            threads.push_back(thread(DFS, &GM[0][0], n,v_k[i]));
+        }
     }
     for(auto& thread : threads){
         thread.join();
