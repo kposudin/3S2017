@@ -48,9 +48,9 @@ public:
     
     bool is_lock_free (){
         if(!lock.try_lock()){
+            lock.unlock();
             return false;
         }
-        lock.unlock();
         return true;
     }
     
@@ -86,25 +86,27 @@ public:
         return result;
     }
     
-    
-    
-    template <class fcal>
-    void apply (fcal func){
-        func(data);
+    template <typename results, typename... arguments>
+    results apply (results(T::*method) (arguments...), arguments... f_arguments){
+        lock.lock();
+        results res;
+        res = (data.*method)(f_arguments...);
+        lock.unlock();
+        return res;
     }
     
     atomic<T> &operator++()
     {
-        apply(
-              [](int& a) { ++a; }
-              );
+        lock.lock();
+        data++;
+        lock.unlock();
         return *this;
     }
     atomic<T> &operator++(int)
     {
-        apply(
-              [](int& a) { --a; }
-              );
+        lock.lock();
+        atomic<T> result(++data);
+        lock.unlock();
         return *this;
     }
     
@@ -128,7 +130,6 @@ public:
         
     }
 };
-
 
 int main(int argc, const char * argv[]) {
     // insert code here...
