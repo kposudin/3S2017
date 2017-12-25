@@ -50,6 +50,7 @@ public:
         if(!lock.try_lock()){
             return false;
         }
+        lock.unlock();
         return true;
     }
     
