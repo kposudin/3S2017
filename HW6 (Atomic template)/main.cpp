@@ -47,6 +47,7 @@ public:
     
     bool is_lock_free (){
         if(!lock.try_lock()){
+            lock.unlock();
             return false;
         }
         return true;
